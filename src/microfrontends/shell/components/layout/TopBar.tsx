@@ -1,7 +1,6 @@
 "use client";
 
 import { FC } from "react";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Box, Breadcrumbs, IconButton, Typography } from "@mui/material";
 import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
@@ -74,41 +73,32 @@ const TopBar: FC = () => {
 
   const segment = pathname.split("/").filter(Boolean).pop() ?? "";
   const labelMap: Record<string, string | undefined> = {
-    "overview": languageData?.Overview,
-    "class-preparation": languageData?.ClassPreparation,
-    "attendance": languageData?.Attendance,
-    "exams": languageData?.Exams,
-    "schedule": languageData?.Schedule,
-    "school-news": languageData?.SchoolNews,
-    "school-activities": languageData?.SchoolActivities,
-    "whats-new": languageData?.WhatsNew,
-    "settings": languageData?.Settings,
+    overview: languageData?.Overview,
+    football: languageData?.Football,
+    platforms: languageData?.Platforms,
+    settings: languageData?.Settings,
   };
   const currentLabel = labelMap[segment] ?? toTitle(segment || "Overview");
 
   return (
-    <Box className="TopBar-wrapper" sx={classes.wrapper}>
-      <Box className="TopBar-left" sx={classes.left}>
-        <IconButton className="TopBar-toggleButton" size="small" onClick={() => dispatch(toggleSidebar())}>
+    <Box sx={classes.wrapper}>
+      <Box sx={classes.left}>
+        <IconButton size="small" onClick={() => dispatch(toggleSidebar())}>
           <MenuOutlinedIcon fontSize="small" />
         </IconButton>
-        <Breadcrumbs className="TopBar-breadcrumbs" separator="/" sx={classes.breadcrumb}>
-          <Typography className="TopBar-crumbLink" sx={classes.crumbLink}>
-            Board
-          </Typography>
-          <Typography className="TopBar-crumbText" sx={classes.crumbText}>
-            {currentLabel}
-          </Typography>
+        <Breadcrumbs separator="/" sx={classes.breadcrumb}>
+          <Typography sx={classes.crumbLink}>Board</Typography>
+          <Typography sx={classes.crumbText}>{currentLabel}</Typography>
         </Breadcrumbs>
       </Box>
-      <Box className="TopBar-right" sx={classes.right}>
-        <IconButton className="TopBar-notifications" size="small">
+      <Box sx={classes.right}>
+        <IconButton size="small">
           <NotificationsNoneOutlinedIcon fontSize="small" />
         </IconButton>
-        <IconButton className="TopBar-messages" size="small">
+        <IconButton size="small">
           <ChatBubbleOutlineOutlinedIcon fontSize="small" />
         </IconButton>
-        <IconButton className="TopBar-search" size="small">
+        <IconButton size="small">
           <SearchIcon fontSize="small" />
         </IconButton>
       </Box>

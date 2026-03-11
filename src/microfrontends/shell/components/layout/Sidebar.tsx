@@ -1,359 +1,242 @@
 "use client";
 
-import { FC } from "react";
+import { FC, useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  Box,
-  Typography,
-  Avatar,
-  List,
-  ListItemButton,
-  ListItemText,
-  Badge,
-  IconButton,
-} from "@mui/material";
-import SchoolOutlinedIcon from "@mui/icons-material/SchoolOutlined";
-import ViewQuiltOutlinedIcon from "@mui/icons-material/ViewQuiltOutlined";
-import AutoStoriesOutlinedIcon from "@mui/icons-material/AutoStoriesOutlined";
-import FactCheckOutlinedIcon from "@mui/icons-material/FactCheckOutlined";
-import AssignmentTurnedInOutlinedIcon from "@mui/icons-material/AssignmentTurnedInOutlined";
-import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
+import { Box, Typography, Avatar, List, ListItemButton, ListItemText, IconButton } from "@mui/material";
+import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
+import SportsSoccerOutlinedIcon from "@mui/icons-material/SportsSoccerOutlined";
+import HubOutlinedIcon from "@mui/icons-material/HubOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
-import NewspaperOutlinedIcon from "@mui/icons-material/NewspaperOutlined";
-import CelebrationOutlinedIcon from "@mui/icons-material/CelebrationOutlined";
-import LightbulbOutlinedIcon from "@mui/icons-material/LightbulbOutlined";
-import RectangleOutlinedIcon from "@mui/icons-material/RectangleOutlined";
+import OpenInNewOutlinedIcon from "@mui/icons-material/OpenInNewOutlined";
+import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
-import cssVariables from "@/theme/cssVariables";
-import { useClasses } from "@/styles/useClasses";
-import { Theme } from "@mui/material/styles";
 import { useTranslation } from "@/i18n/useTranslation";
 import { useDispatch } from "react-redux";
 import { toggleSidebar } from "@/store/slices/uiSlice";
 
-interface SidebarStyles {
-  wrapper: any;
-  logo: any;
-  logoActions: any;
-  sectionLabel: any;
-  navList: any;
-  navButton: any;
-  navIcon: any;
-  navText: any;
-  badge: any;
-  footer: any;
-  footerSection: any;
+function ShortcutHint() {
+  const [isMac, setIsMac] = useState(false);
+  useEffect(() => { setIsMac(navigator.platform.toUpperCase().includes("MAC")); }, []);
+  return (
+    <Typography
+      sx={{
+        fontSize: "0.55rem",
+        color: "#6B7280",
+        fontFamily: "monospace",
+        px: 0.75,
+        py: 0.25,
+        borderRadius: "4px",
+        backgroundColor: "rgba(255,255,255,0.06)",
+        border: "1px solid rgba(255,255,255,0.06)",
+      }}
+    >
+      {isMac ? "⌘K" : "Ctrl K"}
+    </Typography>
+  );
 }
 
-const SidebarStyles = (theme: Theme): SidebarStyles => ({
-  wrapper: {
-    width: 260,
-    height: "calc(100vh - 32px)",
-    display: "flex",
-    flexDirection: "column",
-    padding: "0px 6px 4px 6px",
-    gap: 4,
-    backgroundColor: "transparent",
-    overflowY: "hidden",
-    overflowX: "hidden",
-  },
-
-  logo: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 10,
-    padding: "2px 6px",
-    borderRadius: "16px",
-    backgroundColor: "white",
-    border: "1px solid #E2DED7",
-  },
-  logoActions: {
-    display: "flex",
-    alignItems: "center",
-    gap: 4,
-  },
-
-  sectionLabel: {
-    fontSize: 9,
-    textTransform: "none",
-    letterSpacing: 0,
-    color: "#9CA3AF",
-    marginTop: 1,
-    marginBottom: 1,
-    paddingLeft: 4,
-    fontWeight: 600,
-  },
-
-  navList: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "5px",
-  },
-
-  navButton: {
-    borderRadius: "6px !important",
-    padding: "4px 12px 4px 8px",
-    minHeight: 28,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 10,
-    color: "#111827",
-    backgroundColor: "transparent",
-
-    "&:hover": {
-      backgroundColor: "rgba(255,255,255,0.55)",
-    },
-
-    "&.Mui-selected": {
-      backgroundColor: "#FFFFFF",
-      boxShadow: "0 10px 20px rgba(17, 24, 39, 0.06)",
-    },
-    "&.Mui-selected:hover": {
-      backgroundColor: "#FFFFFF",
-    },
-  },
-
-  navIcon: {
-    width: 18,
-    height: 18,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: 15,
-    color: "#6B7280",
-  },
-
-  navText: {
-    fontSize: 11.5,
-    fontWeight: 600,
-    color: "#111827",
-  },
-
-  badge: {
-    "& .MuiBadge-badge": {
-      fontSize: 10,
-      height: 18,
-      minWidth: 18,
-      borderRadius: "16px",
-      backgroundColor: "#111827",
-      color: "#fff",
-      marginTop: "3px",
-    },
-  },
-
-  footer: {
-    marginTop: "auto",
-    padding: "2px 6px",
-    borderRadius: "16px",
-    backgroundColor: "white",
-    border: "1px solid #E2DED7",
-    display: "flex",
-    alignItems: "center",
-    gap: 10,
-  },
-  footerSection: {
-    marginTop: "auto",
-  }
-});
+const NAV = [
+  { key: "Overview", href: "/overview", icon: <DashboardOutlinedIcon sx={{ fontSize: 17 }} /> },
+  { key: "Football", href: "/football", icon: <SportsSoccerOutlinedIcon sx={{ fontSize: 17 }} /> },
+  { key: "Platforms", href: "/platforms", icon: <HubOutlinedIcon sx={{ fontSize: 17 }} /> },
+];
 
 const Sidebar: FC = () => {
-  const classes = useClasses(SidebarStyles, { name: "Sidebar" });
   const { languageData } = useTranslation();
   const pathname = usePathname();
   const dispatch = useDispatch();
 
-  const mainMenuItems = [
-    { key: "Overview", href: "/overview", icon: <ViewQuiltOutlinedIcon fontSize="inherit" />, badge: 3 },
-    { key: "ClassPreparation", href: "/class-preparation", icon: <AutoStoriesOutlinedIcon fontSize="inherit" /> },
-    { key: "Attendance", href: "/attendance", icon: <FactCheckOutlinedIcon fontSize="inherit" /> },
-    { key: "Exams", href: "/exams", icon: <AssignmentTurnedInOutlinedIcon fontSize="inherit" /> },
-    { key: "Schedule", href: "/schedule", icon: <CalendarMonthOutlinedIcon fontSize="inherit" />, badge: 1 },
-  ];
-
-  const settingsItems = [
-    { key: "SchoolNews", href: "/school-news", icon: <NewspaperOutlinedIcon fontSize="inherit" /> },
-    { key: "SchoolActivities", href: "/school-activities", icon: <CelebrationOutlinedIcon fontSize="inherit" /> },
-    { key: "WhatsNew", href: "/whats-new", icon: <LightbulbOutlinedIcon fontSize="inherit" /> },
-    { key: "Settings", href: "/settings", icon: <SettingsOutlinedIcon fontSize="inherit" /> },
-  ];
-
   return (
-    <Box className="Sidebar-wrapper" sx={classes.wrapper}>
-      <Box className="Sidebar-logo" sx={classes.logo}>
-        <Box className="Sidebar-logoContent" sx={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <Avatar
-            className="Sidebar-logoAvatar"
+    <Box
+      sx={{
+        width: 240,
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        px: 1.5,
+        py: 2,
+        overflow: "hidden",
+        background: "linear-gradient(180deg, rgba(255,255,255,0.06) 0%, transparent 100%)",
+        backgroundColor: "#12141C",
+      }}
+    >
+      {/* Logo */}
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", px: 1, mb: 0.5 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
+          <Box
             sx={{
-              width: 26,
-              height: 26,
-              bgcolor: "#111827",
-              color: "#fff",
-              fontSize: 12,
-              borderRadius: "16px",
+              width: 30,
+              height: 30,
+              borderRadius: "9px",
+              background: "linear-gradient(135deg, #6366F1 0%, #818CF8 100%)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 0 20px rgba(99,102,241,0.3)",
             }}
           >
-            <SchoolOutlinedIcon fontSize="small" />
-          </Avatar>
-          <Box className="Sidebar-logoText">
-            <Typography className="Sidebar-logoTitle" variant="subtitle2" sx={{ fontWeight: 700, lineHeight: 1.1 }} noWrap>
-              {languageData?.FusionBoard ?? "FusionBoard"}
+            <HubOutlinedIcon sx={{ fontSize: 15, color: "#fff" }} />
+          </Box>
+          <Box>
+            <Typography sx={{ fontSize: "0.8rem", fontWeight: 800, color: "#F9FAFB", lineHeight: 1.1, letterSpacing: "-0.01em" }}>
+              FusionBoard
             </Typography>
-            <Typography
-              className="Sidebar-logoSubtitle"
-              variant="caption"
-              sx={{ color: cssVariables.palette.textSecondary }}
-              noWrap
+            <Typography sx={{ fontSize: "0.55rem", color: "#4B5563", fontWeight: 500 }}>
+              v1.0 &middot; Command Center
+            </Typography>
+          </Box>
+        </Box>
+        <IconButton
+          size="small"
+          onClick={() => dispatch(toggleSidebar())}
+          sx={{ color: "#4B5563", "&:hover": { color: "#9CA3AF", backgroundColor: "rgba(255,255,255,0.06)" } }}
+        >
+          <MenuOutlinedIcon sx={{ fontSize: 16 }} />
+        </IconButton>
+      </Box>
+
+      {/* Search hint */}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+          mx: 0.5,
+          my: 1.5,
+          px: 1.5,
+          py: 0.75,
+          borderRadius: "10px",
+          backgroundColor: "rgba(255,255,255,0.06)",
+          border: "1px solid rgba(255,255,255,0.06)",
+          cursor: "pointer",
+          transition: "all 0.15s",
+          "&:hover": { backgroundColor: "rgba(255,255,255,0.06)", borderColor: "rgba(255,255,255,0.08)" },
+        }}
+      >
+        <SearchOutlinedIcon sx={{ fontSize: 14, color: "#4B5563" }} />
+        <Typography sx={{ fontSize: "0.7rem", color: "#4B5563", flex: 1 }}>Search...</Typography>
+        <ShortcutHint />
+      </Box>
+
+      {/* Nav */}
+      <Typography sx={{ fontSize: "0.55rem", fontWeight: 600, color: "#374151", textTransform: "uppercase", letterSpacing: "0.1em", px: 1.5, mb: 0.75 }}>
+        {languageData?.MainMenu ?? "Navigation"}
+      </Typography>
+      <List dense disablePadding>
+        {NAV.map((item) => {
+          const active = pathname === item.href;
+          const label = languageData?.[item.key as keyof typeof languageData] ?? item.key;
+          return (
+            <ListItemButton
+              key={item.href}
+              component={Link}
+              href={item.href}
+              selected={active}
+              sx={{
+                borderRadius: "10px",
+                px: 1.5,
+                py: 0.7,
+                mb: 0.25,
+                gap: 1.25,
+                color: active ? "#F9FAFB" : "#6B7280",
+                backgroundColor: active ? "rgba(99,102,241,0.1)" : "transparent",
+                borderLeft: active ? "2px solid #6366F1" : "2px solid transparent",
+                "&:hover": { backgroundColor: active ? "rgba(99,102,241,0.14)" : "rgba(255,255,255,0.06)" },
+                "&.Mui-selected": { backgroundColor: "rgba(99,102,241,0.1)", "&:hover": { backgroundColor: "rgba(99,102,241,0.14)" } },
+                transition: "all 0.15s ease",
+              }}
             >
-              {languageData?.ProjectDashboard ?? "Project dashboard"}
-            </Typography>
-          </Box>
-        </Box>
-        <Box className="Sidebar-logoActions" sx={classes.logoActions}>
-          <IconButton className="Sidebar-toggleButton" size="small" onClick={() => dispatch(toggleSidebar())}>
-            <MenuOutlinedIcon fontSize="small" />
-          </IconButton>
-          <IconButton
-            className="Sidebar-logoActionButton"
-            size="small"
-            sx={{
-              width: 24,
-              height: 24,
-              borderRadius: "16px",
-              border: "1px solid #E2DED7",
-              backgroundColor: "#FFFFFF",
-              "&:hover": { backgroundColor: "#F9FAFB" },
-            }}
-          >
-            <RectangleOutlinedIcon fontSize="small" />
-          </IconButton>
-        </Box>
+              <Box sx={{ color: active ? "#818CF8" : "#4B5563", display: "flex", alignItems: "center" }}>
+                {item.icon}
+              </Box>
+              <ListItemText
+                primary={label}
+                primaryTypographyProps={{ fontSize: "0.78rem", fontWeight: active ? 700 : 500, color: "inherit", noWrap: true }}
+                sx={{ m: 0 }}
+              />
+            </ListItemButton>
+          );
+        })}
+      </List>
+
+      {/* External */}
+      <Typography sx={{ fontSize: "0.55rem", fontWeight: 600, color: "#374151", textTransform: "uppercase", letterSpacing: "0.1em", px: 1.5, mt: 2.5, mb: 0.75 }}>
+        Connected Apps
+      </Typography>
+      <Box
+        component="a"
+        href="https://football-tracking-fe.vercel.app"
+        target="_blank"
+        rel="noopener noreferrer"
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 1.25,
+          px: 1.5,
+          py: 0.75,
+          mx: 0.5,
+          borderRadius: "10px",
+          textDecoration: "none",
+          color: "#6B7280",
+          transition: "all 0.15s",
+          "&:hover": { backgroundColor: "rgba(255,255,255,0.06)", color: "#9CA3AF" },
+        }}
+      >
+        <Box sx={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: "#10B981", boxShadow: "0 0 8px rgba(16,185,129,0.5)", flexShrink: 0 }} />
+        <Typography sx={{ fontSize: "0.75rem", fontWeight: 500, flex: 1 }}>Football Tracking</Typography>
+        <OpenInNewOutlinedIcon sx={{ fontSize: 12, color: "#374151" }} />
       </Box>
 
-      <Box className="Sidebar-section">
-        <Typography className="Sidebar-sectionLabel" sx={classes.sectionLabel}>
-          {languageData?.MainMenu ?? "Main menu"}
-        </Typography>
-        <List className="Sidebar-navList" dense disablePadding sx={classes.navList}>
-          {mainMenuItems.map((item) => {
-            const isSelected = pathname === item.href;
-            const label = languageData?.[item.key as keyof typeof languageData] ?? item.key;
+      <Box sx={{ flex: 1 }} />
 
-            return (
-              <ListItemButton
-                className="Sidebar-navButton"
-                key={item.href}
-                component={Link}
-                href={item.href}
-                selected={isSelected}
-                sx={classes.navButton}
-              >
-                {/* Left side (icon + text) */}
-                <Box className="Sidebar-navLeft" sx={{ display: "flex", alignItems: "center", gap: "16px", minWidth: 0 }}>
-                  <Box
-                    className="Sidebar-navIcon"
-                    sx={{
-                      ...classes.navIcon,
-                      color: isSelected ? "#111827" : "#6B7280",
-                    }}
-                  >
-                    {item.icon}
-                  </Box>
+      {/* Settings */}
+      <List dense disablePadding sx={{ mb: 1.5 }}>
+        <ListItemButton
+          component={Link}
+          href="/settings"
+          selected={pathname === "/settings"}
+          sx={{
+            borderRadius: "10px",
+            px: 1.5,
+            py: 0.7,
+            gap: 1.25,
+            color: pathname === "/settings" ? "#F9FAFB" : "#6B7280",
+            backgroundColor: pathname === "/settings" ? "rgba(99,102,241,0.1)" : "transparent",
+            "&:hover": { backgroundColor: "rgba(255,255,255,0.06)" },
+            "&.Mui-selected": { backgroundColor: "rgba(99,102,241,0.1)" },
+          }}
+        >
+          <SettingsOutlinedIcon sx={{ fontSize: 17, color: pathname === "/settings" ? "#818CF8" : "#4B5563" }} />
+          <ListItemText
+            primary={languageData?.Settings ?? "Settings"}
+            primaryTypographyProps={{ fontSize: "0.78rem", fontWeight: pathname === "/settings" ? 700 : 500, noWrap: true }}
+            sx={{ m: 0 }}
+          />
+        </ListItemButton>
+      </List>
 
-                  <ListItemText
-                    className="Sidebar-navText"
-                    primary={label}
-                    primaryTypographyProps={{
-                      ...classes.navText,
-                      color: isSelected ? "#111827" : "#374151",
-                      noWrap: true,
-                    }}
-                    sx={{ margin: 0 }}
-                  />
-                </Box>
-
-                {/* Right side badge (like screenshot) */}
-                {item?.badge ? (
-                  <Badge
-                    className="Sidebar-navBadge"
-                    badgeContent={item.badge}
-                    sx={classes.badge}
-                    overlap="circular"
-                  >
-                    <Box className="Sidebar-navBadgeSpacer" sx={{ width: 10, height: 10 }} />
-                  </Badge>
-                ) : (
-                  <Box className="Sidebar-navRightSpacer" sx={{ width: 18 }} />
-                )}
-              </ListItemButton>
-            );
-          })}
-        </List>
-
-      </Box>
-
-      <Box className="Sidebar-section">
-        <Typography className="Sidebar-sectionLabel" sx={classes.sectionLabel}>
-          {languageData?.SettingsAndNews ?? "Settings and news"}
-        </Typography>
-        <List className="Sidebar-navList" dense disablePadding sx={classes.navList}>
-          {settingsItems.map((item) => {
-            const isSelected = pathname === item.href;
-            const label = languageData?.[item.key as keyof typeof languageData] ?? item.key;
-            return (
-              <ListItemButton
-                className="Sidebar-navButton"
-                key={item.href}
-                component={Link}
-                href={item.href}
-                selected={isSelected}
-                sx={classes.navButton}
-              >
-                <Box className="Sidebar-navLeft" sx={{ display: "flex", alignItems: "center", gap: "16px", minWidth: 0 }}>
-                  <Box
-                    className="Sidebar-navIcon"
-                    sx={{
-                      ...classes.navIcon,
-                      color: isSelected ? "#111827" : "#6B7280",
-                    }}
-                  >
-                    {item.icon}
-                  </Box>
-                  <ListItemText
-                    className="Sidebar-navText"
-                    primary={label}
-                    primaryTypographyProps={{
-                      ...classes.navText,
-                      color: isSelected ? "#111827" : "#374151",
-                      noWrap: true,
-                    }}
-                    sx={{ margin: 0 }}
-                  />
-                </Box>
-                <Box className="Sidebar-navRightSpacer" sx={{ width: 18 }} />
-              </ListItemButton>
-            );
-          })}
-        </List>
-      </Box>
-      <Box className="Sidebar-footerSection" sx={classes.footerSection}>
-        <Typography className="Sidebar-sectionLabel" sx={classes.sectionLabel}>
-          {languageData?.Account ?? "Account"}
-        </Typography>
-        <Box className="Sidebar-footer" sx={classes.footer}>
-          <Avatar className="Sidebar-footerAvatar" sx={{ width: 28, height: 28, background: "#111827" }}>
-            F
-          </Avatar>
-          <Box className="Sidebar-footerText">
-            <Typography className="Sidebar-footerName" variant="body2" sx={{ fontWeight: 600 }}>
-              Florin
-            </Typography>
-            <Typography className="Sidebar-footerRole" variant="caption" sx={{ color: cssVariables.palette.textSecondary }}>
-              {languageData?.Admin ?? "Admin"}
-            </Typography>
-          </Box>
+      {/* Account */}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 1.25,
+          px: 1.5,
+          py: 1.25,
+          borderRadius: "12px",
+          backgroundColor: "rgba(255,255,255,0.02)",
+          border: "1px solid rgba(255,255,255,0.06)",
+        }}
+      >
+        <Avatar sx={{ width: 30, height: 30, fontSize: "0.7rem", fontWeight: 700, background: "linear-gradient(135deg, #6366F1, #818CF8)" }}>
+          F
+        </Avatar>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Typography sx={{ fontSize: "0.75rem", fontWeight: 600, color: "#E5E7EB", lineHeight: 1.2 }} noWrap>
+            Florin
+          </Typography>
+          <Typography sx={{ fontSize: "0.6rem", color: "#4B5563" }}>{languageData?.Admin ?? "Admin"}</Typography>
         </Box>
       </Box>
     </Box>

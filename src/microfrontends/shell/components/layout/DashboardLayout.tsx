@@ -2,89 +2,71 @@
 
 import { FC, ReactNode } from "react";
 import { Box } from "@mui/material";
-import { Theme } from "@mui/material/styles";
-import { useClasses } from "@/styles/useClasses";
-import cssVariables from "@/theme/cssVariables";
 import Sidebar from "./Sidebar";
+import CommandPalette from "@/components/dashboard/CommandPalette";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
-
-interface DashboardLayoutStyles {
-  wrapper: any;
-  contentWrapper: any;
-  mainContent: any;
-  rightColumn: any;
-}
-
-const DashboardLayoutStyles = (theme: Theme): DashboardLayoutStyles => ({
-  wrapper: {
-    height: "100%",
-    minHeight: "100vh",
-    overflow: "hidden",
-    backgroundColor: cssVariables.palette.bgBody,
-    display: "grid",
-    gridTemplateColumns: "230px 1fr",
-    gap: "14px",
-    padding: "14px",
-  },
-  contentWrapper: {
-    display: "flex",
-    flexDirection: "column",
-    height: "calc(100vh - 32px)",
-    minHeight: 0,
-    overflow: "hidden",
-    border: "1px solid " + cssVariables.palette.borderSoft,
-    borderRadius: "16px",
-    background: "white",
-  },
-  mainContent: {
-    height: "100%",
-    minHeight: 0,
-    overflow: "auto",
-    overflowX: "hidden",
-    padding: "20px 24px 24px",
-    scrollbarWidth: "thin",
-    scrollbarColor: "#111827 transparent",
-    "&::-webkit-scrollbar": {
-      width: 4,
-      height: 4,
-    },
-    "&::-webkit-scrollbar-track": {
-      background: "transparent",
-    },
-    "&::-webkit-scrollbar-thumb": {
-      background: "#111827",
-      borderRadius: 8,
-    },
-  },
-  rightColumn: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "16px",
-  },
-});
 
 interface DashboardLayoutProps {
   children: ReactNode;
 }
 
 const DashboardLayout: FC<DashboardLayoutProps> = ({ children }) => {
-  const classes = useClasses(DashboardLayoutStyles, { name: "DashboardLayout" });
-  const sidebarCollapsed = useSelector((state: RootState) => state.ui.sidebarCollapsed);
+  const collapsed = useSelector((state: RootState) => state.ui.sidebarCollapsed);
 
   return (
     <Box
       sx={{
-        ...classes.wrapper,
-        gridTemplateColumns: sidebarCollapsed ? "0px 1fr" : "260px 1fr",
+        height: "100vh",
+        display: "flex",
+        overflow: "hidden",
+        background: "radial-gradient(ellipse at 20% 0%, #1a1f2e 0%, #0F1117 50%)",
       }}
     >
-      <Box sx={{ width: sidebarCollapsed ? 0 : "auto", overflow: "hidden" }}>
+      <CommandPalette />
+
+      {/* Sidebar */}
+      <Box
+        sx={{
+          width: collapsed ? 0 : 240,
+          flexShrink: 0,
+          overflow: "hidden",
+          transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+          borderRight: collapsed ? "none" : "1px solid rgba(255,255,255,0.04)",
+        }}
+      >
         <Sidebar />
       </Box>
-      <Box sx={classes.contentWrapper}>
-        <Box sx={classes.mainContent}>
-          {children}
+
+      {/* Content */}
+      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, position: "relative" }}>
+        {/* Ambient glow */}
+        <Box
+          sx={{
+            position: "absolute",
+            top: -100,
+            right: -100,
+            width: 400,
+            height: 400,
+            borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 70%)",
+            pointerEvents: "none",
+            zIndex: 0,
+          }}
+        />
+        <Box
+          sx={{
+            flex: 1,
+            overflow: "auto",
+            overflowX: "hidden",
+            p: { xs: 2, sm: 3, md: 3.5 },
+            position: "relative",
+            zIndex: 1,
+          }}
+        >
+          <Box sx={{ maxWidth: 1440, mx: "auto" }}>
+            {children}
+          </Box>
         </Box>
       </Box>
     </Box>
