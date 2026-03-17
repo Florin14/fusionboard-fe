@@ -2,7 +2,7 @@
 
 import { FC } from "react";
 import { usePathname } from "next/navigation";
-import { Box, Breadcrumbs, IconButton, Typography } from "@mui/material";
+import { Badge, Box, Breadcrumbs, IconButton, Typography } from "@mui/material";
 import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
 import ChatBubbleOutlineOutlinedIcon from "@mui/icons-material/ChatBubbleOutlineOutlined";
 import SearchIcon from "@mui/icons-material/Search";
@@ -11,8 +11,11 @@ import { Theme } from "@mui/material/styles";
 import { useClasses } from "@/styles/useClasses";
 import cssVariables from "@/theme/cssVariables";
 import { useTranslation } from "@/i18n/useTranslation";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toggleSidebar } from "@/store/slices/uiSlice";
+import { markAllRead } from "@/store/slices/notificationsSlice";
+import type { RootState } from "@/store";
+import PresenceIndicator from "@/components/dashboard/PresenceIndicator";
 
 interface TopBarStyles {
   wrapper: any;
@@ -70,6 +73,7 @@ const TopBar: FC = () => {
   const pathname = usePathname();
   const { languageData } = useTranslation();
   const dispatch = useDispatch();
+  const unreadCount = useSelector((state: RootState) => state.notifications.unreadCount);
 
   const segment = pathname.split("/").filter(Boolean).pop() ?? "";
   const labelMap: Record<string, string | undefined> = {
@@ -92,8 +96,11 @@ const TopBar: FC = () => {
         </Breadcrumbs>
       </Box>
       <Box sx={classes.right}>
-        <IconButton size="small">
-          <NotificationsNoneOutlinedIcon fontSize="small" />
+        <PresenceIndicator />
+        <IconButton size="small" onClick={() => unreadCount > 0 && dispatch(markAllRead())}>
+          <Badge badgeContent={unreadCount} color="error" max={99} sx={{ "& .MuiBadge-badge": { fontSize: "0.6rem", minWidth: 16, height: 16 } }}>
+            <NotificationsNoneOutlinedIcon fontSize="small" />
+          </Badge>
         </IconButton>
         <IconButton size="small">
           <ChatBubbleOutlineOutlinedIcon fontSize="small" />

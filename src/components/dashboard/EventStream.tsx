@@ -2,6 +2,7 @@
 
 import { Box, Typography } from "@mui/material";
 import GlassCard from "./GlassCard";
+import LiveEventFeed from "./LiveEventFeed";
 import type { Match } from "@/types/football";
 
 interface StreamEvent {
@@ -69,6 +70,7 @@ export default function EventStream({ matches, services }: EventStreamProps) {
       </Box>
 
       <Box sx={{ maxHeight: 320, overflow: "auto", py: 0.5 }}>
+        <LiveEventFeed />
         {events.map((e, i) => (
           <Box
             key={e.id}
