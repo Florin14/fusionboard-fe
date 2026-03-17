@@ -27,8 +27,8 @@ export default function TopPlayers({ players }: { players: Player[] }) {
           <Typography sx={{ fontSize: "0.75rem", color: "#4B5563" }}>No players</Typography>
         </Box>
       ) : (
-        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" } }}>
-          {players.map((p, i) => {
+        <Box>
+          {players.map((p) => {
             const pos = POS[p.position] ?? POS.MIDFIELDER;
             return (
               <Box
@@ -40,11 +40,8 @@ export default function TopPlayers({ players }: { players: Player[] }) {
                   py: 1.5,
                   gap: 1.25,
                   borderBottom: "1px solid rgba(255,255,255,0.03)",
-                  borderRight: { xs: "none", md: i % 2 === 0 ? "1px solid rgba(255,255,255,0.03)" : "none" },
                   transition: "background-color 0.12s",
                   "&:hover": { backgroundColor: "rgba(255,255,255,0.04)" },
-                  animation: "fade-in-up 0.3s ease-out both",
-                  animationDelay: `${i * 0.03}s`,
                 }}
               >
                 <Avatar

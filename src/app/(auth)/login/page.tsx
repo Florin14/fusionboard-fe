@@ -1,10 +1,44 @@
 "use client";
 
-import Link from "next/link";
-import { Box, Button, TextField, Typography } from "@mui/material";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { Box, Button, TextField, Typography, Alert } from "@mui/material";
 import HubOutlinedIcon from "@mui/icons-material/HubOutlined";
+import { login } from "@/lib/auth";
+
+const inputSx = {
+  "& .MuiOutlinedInput-root": {
+    borderRadius: "12px",
+    backgroundColor: "rgba(255,255,255,0.08)",
+    "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.08)" },
+    "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(99,102,241,0.3)" },
+    "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "#6366F1" },
+  },
+  "& .MuiInputLabel-root": { color: "#6B7280" },
+  "& .MuiInputBase-input": { color: "#F9FAFB" },
+};
 
 export default function LoginPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isPending, startTransition] = useTransition();
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+
+    startTransition(async () => {
+      const result = await login(email, password);
+      if (result.success) {
+        router.push("/overview");
+      } else {
+        setError(result.error ?? "Invalid credentials");
+      }
+    });
+  }
+
   return (
     <Box
       sx={{
@@ -46,6 +80,8 @@ export default function LoginPage() {
 
         {/* Card */}
         <Box
+          component="form"
+          onSubmit={handleSubmit}
           sx={{
             p: 4,
             borderRadius: "20px",
@@ -67,91 +103,64 @@ export default function LoginPage() {
             </Typography>
           </Box>
 
+          {error && (
+            <Alert
+              severity="error"
+              sx={{
+                borderRadius: "12px",
+                backgroundColor: "rgba(239,68,68,0.1)",
+                color: "#FCA5A5",
+                border: "1px solid rgba(239,68,68,0.2)",
+                "& .MuiAlert-icon": { color: "#EF4444" },
+              }}
+            >
+              {error}
+            </Alert>
+          )}
+
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <TextField
               label="Email"
               placeholder="you@company.com"
+              type="email"
               fullWidth
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "12px",
-                  backgroundColor: "rgba(255,255,255,0.08)",
-                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.08)" },
-                  "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(99,102,241,0.3)" },
-                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "#6366F1" },
-                },
-                "& .MuiInputLabel-root": { color: "#6B7280" },
-                "& .MuiInputBase-input": { color: "#F9FAFB" },
-              }}
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={isPending}
+              sx={inputSx}
             />
             <TextField
               label="Password"
-              placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"
+              placeholder={"\u2022".repeat(8)}
               type="password"
               fullWidth
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "12px",
-                  backgroundColor: "rgba(255,255,255,0.08)",
-                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.08)" },
-                  "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(99,102,241,0.3)" },
-                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "#6366F1" },
-                },
-                "& .MuiInputLabel-root": { color: "#6B7280" },
-                "& .MuiInputBase-input": { color: "#F9FAFB" },
-              }}
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={isPending}
+              sx={inputSx}
             />
 
-            <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-              <Typography sx={{ fontSize: "0.72rem", color: "#818CF8", fontWeight: 600, cursor: "pointer", "&:hover": { color: "#6366F1" } }}>
-                Forgot password?
-              </Typography>
-            </Box>
-
             <Button
+              type="submit"
               variant="contained"
               fullWidth
+              disabled={isPending}
               sx={{
                 borderRadius: "12px",
                 py: 1.5,
+                mt: 0.5,
                 background: "linear-gradient(135deg, #6366F1, #818CF8)",
                 fontWeight: 700,
                 fontSize: "0.85rem",
                 boxShadow: "0 4px 20px rgba(99,102,241,0.3)",
                 "&:hover": { background: "linear-gradient(135deg, #4F46E5, #6366F1)", boxShadow: "0 6px 24px rgba(99,102,241,0.4)" },
+                "&.Mui-disabled": { opacity: 0.7 },
               }}
             >
-              Sign in
+              {isPending ? "Signing in..." : "Sign in"}
             </Button>
-
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2, color: "#4B5563", fontSize: "0.72rem", "&::before, &::after": { content: '""', flex: 1, height: 1, backgroundColor: "rgba(255,255,255,0.08)" } }}>
-              or
-            </Box>
-
-            <Button
-              variant="outlined"
-              fullWidth
-              sx={{
-                borderRadius: "12px",
-                py: 1.25,
-                borderColor: "rgba(255,255,255,0.08)",
-                color: "#E5E7EB",
-                fontWeight: 600,
-                fontSize: "0.8rem",
-                "&:hover": { borderColor: "rgba(255,255,255,0.15)", backgroundColor: "rgba(255,255,255,0.03)" },
-              }}
-            >
-              Continue with Google
-            </Button>
-          </Box>
-
-          <Box sx={{ textAlign: "center", pt: 0.5 }}>
-            <Typography sx={{ fontSize: "0.72rem", color: "#6B7280" }}>
-              Skip?{" "}
-              <Link href="/overview" style={{ color: "#818CF8", fontWeight: 600, textDecoration: "none" }}>
-                Go to dashboard
-              </Link>
-            </Typography>
           </Box>
         </Box>
       </Box>

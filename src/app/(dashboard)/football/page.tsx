@@ -1,26 +1,30 @@
 import { Box, Typography, Chip } from "@mui/material";
 import { apiFetch } from "@/lib/api";
 import StatsOverview from "@/microfrontends/football/components/StatsOverview";
-import RecentMatches from "@/microfrontends/football/components/RecentMatches";
+import BaseCampMatches from "@/microfrontends/football/components/BaseCampMatches";
+import AllMatches from "@/microfrontends/football/components/AllMatches";
 import TopPlayers from "@/microfrontends/football/components/TopPlayers";
 import GlassCard from "@/components/dashboard/GlassCard";
-import type { DashboardStats, Match, Player } from "@/types/football";
+import type { DashboardStats, Match, Player, Team } from "@/types/football";
 import OpenInNewOutlinedIcon from "@mui/icons-material/OpenInNewOutlined";
 import ErrorOutlineOutlinedIcon from "@mui/icons-material/ErrorOutlineOutlined";
 
 const EXT_URL = "https://football-tracking-fe.vercel.app";
+const BASE_CAMP_NAME = "base camp";
 
 export default async function FootballPage() {
   let stats: DashboardStats | null = null;
   let matches: Match[] = [];
   let players: Player[] = [];
+  let teams: Team[] = [];
   let error: string | null = null;
 
   try {
-    [stats, matches, players] = await Promise.all([
+    [stats, matches, players, teams] = await Promise.all([
       apiFetch<DashboardStats>("/services/football/stats"),
-      apiFetch<Match[]>("/services/football/matches", { limit: 15 }),
+      apiFetch<Match[]>("/services/football/matches", { limit: 200 }),
       apiFetch<Player[]>("/services/football/players", { limit: 15 }),
+      apiFetch<Team[]>("/services/football/teams", { limit: 100 }),
     ]);
   } catch (e) {
     error = e instanceof Error ? e.message : "Failed to fetch";
@@ -44,6 +48,33 @@ export default async function FootballPage() {
       </Box>
     );
   }
+
+  // Find Base Camp team and filter matches
+  const baseCampTeam = teams.find((t) => t.name.toLowerCase().includes(BASE_CAMP_NAME) || t.isDefault);
+  const baseCampTeamName = baseCampTeam?.name ?? "Base Camp";
+
+  const baseCampMatches = matches.filter(
+    (m) =>
+      m.team1Name.toLowerCase().includes(BASE_CAMP_NAME) ||
+      m.team2Name.toLowerCase().includes(BASE_CAMP_NAME)
+  );
+
+  // Sort: ONGOING first, then SCHEDULED, then FINISHED (most recent first within each group)
+  const sortedMatches = [...matches].sort((a, b) => {
+    const order: Record<string, number> = { ONGOING: 0, SCHEDULED: 1, FINISHED: 2 };
+    const oa = order[a.state] ?? 2;
+    const ob = order[b.state] ?? 2;
+    if (oa !== ob) return oa - ob;
+    return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+  });
+
+  const sortedBaseCamp = [...baseCampMatches].sort((a, b) => {
+    const order: Record<string, number> = { ONGOING: 0, SCHEDULED: 1, FINISHED: 2 };
+    const oa = order[a.state] ?? 2;
+    const ob = order[b.state] ?? 2;
+    if (oa !== ob) return oa - ob;
+    return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+  });
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
@@ -96,9 +127,12 @@ export default async function FootballPage() {
         </GlassCard>
       )}
 
-      {/* Grid */}
+      {/* Base Camp Section */}
+      <BaseCampMatches matches={sortedBaseCamp} baseCampTeamName={baseCampTeamName} />
+
+      {/* All Matches + Players */}
       <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "3fr 2fr" }, gap: 2, alignItems: "start" }}>
-        <RecentMatches matches={matches} />
+        <AllMatches matches={sortedMatches} />
         <TopPlayers players={players} />
       </Box>
     </Box>

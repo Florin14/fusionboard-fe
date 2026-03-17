@@ -10,10 +10,9 @@ import HubOutlinedIcon from "@mui/icons-material/HubOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import OpenInNewOutlinedIcon from "@mui/icons-material/OpenInNewOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
-import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
+import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import { useTranslation } from "@/i18n/useTranslation";
-import { useDispatch } from "react-redux";
-import { toggleSidebar } from "@/store/slices/uiSlice";
+import { logout } from "@/lib/auth";
 
 function ShortcutHint() {
   const [isMac, setIsMac] = useState(false);
@@ -36,6 +35,17 @@ function ShortcutHint() {
   );
 }
 
+function useUser() {
+  const [user, setUser] = useState<{ name: string; role: string } | null>(null);
+  useEffect(() => {
+    try {
+      const raw = document.cookie.split("; ").find((c) => c.startsWith("user="))?.split("=").slice(1).join("=");
+      if (raw) setUser(JSON.parse(decodeURIComponent(raw)));
+    } catch {}
+  }, []);
+  return user;
+}
+
 const NAV = [
   { key: "Overview", href: "/overview", icon: <DashboardOutlinedIcon sx={{ fontSize: 17 }} /> },
   { key: "Football", href: "/football", icon: <SportsSoccerOutlinedIcon sx={{ fontSize: 17 }} /> },
@@ -45,7 +55,11 @@ const NAV = [
 const Sidebar: FC = () => {
   const { languageData } = useTranslation();
   const pathname = usePathname();
-  const dispatch = useDispatch();
+  const user = useUser();
+
+  const displayName = user?.name ?? "User";
+  const displayRole = user?.role ?? "Admin";
+  const initial = displayName.charAt(0).toUpperCase();
 
   return (
     <Box
@@ -78,22 +92,10 @@ const Sidebar: FC = () => {
           >
             <HubOutlinedIcon sx={{ fontSize: 15, color: "#fff" }} />
           </Box>
-          <Box>
-            <Typography sx={{ fontSize: "0.8rem", fontWeight: 800, color: "#F9FAFB", lineHeight: 1.1, letterSpacing: "-0.01em" }}>
-              FusionBoard
-            </Typography>
-            <Typography sx={{ fontSize: "0.55rem", color: "#4B5563", fontWeight: 500 }}>
-              v1.0 &middot; Command Center
-            </Typography>
-          </Box>
+          <Typography sx={{ fontSize: "0.8rem", fontWeight: 800, color: "#F9FAFB", lineHeight: 1.1, letterSpacing: "-0.01em" }}>
+            FusionBoard
+          </Typography>
         </Box>
-        <IconButton
-          size="small"
-          onClick={() => dispatch(toggleSidebar())}
-          sx={{ color: "#4B5563", "&:hover": { color: "#9CA3AF", backgroundColor: "rgba(255,255,255,0.06)" } }}
-        >
-          <MenuOutlinedIcon sx={{ fontSize: 16 }} />
-        </IconButton>
       </Box>
 
       {/* Search hint */}
@@ -230,14 +232,21 @@ const Sidebar: FC = () => {
         }}
       >
         <Avatar sx={{ width: 30, height: 30, fontSize: "0.7rem", fontWeight: 700, background: "linear-gradient(135deg, #6366F1, #818CF8)" }}>
-          F
+          {initial}
         </Avatar>
         <Box sx={{ flex: 1, minWidth: 0 }}>
           <Typography sx={{ fontSize: "0.75rem", fontWeight: 600, color: "#E5E7EB", lineHeight: 1.2 }} noWrap>
-            Florin
+            {displayName}
           </Typography>
-          <Typography sx={{ fontSize: "0.6rem", color: "#4B5563" }}>{languageData?.Admin ?? "Admin"}</Typography>
+          <Typography sx={{ fontSize: "0.6rem", color: "#4B5563" }}>{displayRole}</Typography>
         </Box>
+        <IconButton
+          size="small"
+          onClick={() => logout()}
+          sx={{ color: "#4B5563", "&:hover": { color: "#EF4444", backgroundColor: "rgba(239,68,68,0.1)" } }}
+        >
+          <LogoutOutlinedIcon sx={{ fontSize: 16 }} />
+        </IconButton>
       </Box>
     </Box>
   );

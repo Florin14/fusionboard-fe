@@ -3,6 +3,7 @@
 import { FC, ReactNode } from "react";
 import { Box } from "@mui/material";
 import Sidebar from "./Sidebar";
+import TopBar from "./TopBar";
 import CommandPalette from "@/components/dashboard/CommandPalette";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
@@ -54,12 +55,16 @@ const DashboardLayout: FC<DashboardLayoutProps> = ({ children }) => {
             zIndex: 0,
           }}
         />
+        <Box sx={{ px: { xs: 2, sm: 3, md: 3.5 }, pt: { xs: 2, sm: 3, md: 3.5 }, position: "relative", zIndex: 1 }}>
+          <TopBar />
+        </Box>
         <Box
           sx={{
             flex: 1,
             overflow: "auto",
             overflowX: "hidden",
             p: { xs: 2, sm: 3, md: 3.5 },
+            pt: { xs: 1, sm: 1.5 },
             position: "relative",
             zIndex: 1,
           }}

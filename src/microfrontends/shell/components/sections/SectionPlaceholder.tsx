@@ -5,7 +5,6 @@ import { Box, Typography } from "@mui/material";
 import { Theme } from "@mui/material/styles";
 import { useClasses } from "@/styles/useClasses";
 import cssVariables from "@/theme/cssVariables";
-import TopBar from "@/microfrontends/shell/components/layout/TopBar";
 
 interface SectionPlaceholderStyles {
   wrapper: any;
@@ -47,7 +46,6 @@ const SectionPlaceholder: FC<SectionPlaceholderProps> = ({ title, subtitle }) =>
 
   return (
     <Box sx={classes.wrapper}>
-      <TopBar />
       <Box>
         <Typography sx={classes.title}>{title}</Typography>
         {subtitle ? <Typography sx={classes.subtitle}>{subtitle}</Typography> : null}
