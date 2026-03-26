@@ -2,17 +2,29 @@
 
 import { Box, Typography } from "@mui/material";
 import GlassCard from "./GlassCard";
-import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import SportsSoccerOutlinedIcon from "@mui/icons-material/SportsSoccerOutlined";
-import OpenInNewOutlinedIcon from "@mui/icons-material/OpenInNewOutlined";
+import WorkOutlineOutlinedIcon from "@mui/icons-material/WorkOutlineOutlined";
+import ChecklistOutlinedIcon from "@mui/icons-material/ChecklistOutlined";
 import HubOutlinedIcon from "@mui/icons-material/HubOutlined";
 import Link from "next/link";
+import { useState, useEffect } from "react";
+
+function useUserName() {
+  const [name, setName] = useState("there");
+  useEffect(() => {
+    try {
+      const raw = document.cookie.split("; ").find((c) => c.startsWith("user="))?.split("=").slice(1).join("=");
+      if (raw) { const u = JSON.parse(decodeURIComponent(raw)); if (u.name) setName(u.name.split(" ")[0]); }
+    } catch {}
+  }, []);
+  return name;
+}
 
 const ACTIONS = [
+  { label: "Job Tracker", icon: <WorkOutlineOutlinedIcon sx={{ fontSize: 16 }} />, href: "/jobs", color: "#8B5CF6" },
+  { label: "My Tasks", icon: <ChecklistOutlinedIcon sx={{ fontSize: 16 }} />, href: "/tasks", color: "#EC4899" },
   { label: "View Matches", icon: <SportsSoccerOutlinedIcon sx={{ fontSize: 16 }} />, href: "/football", color: "#10B981" },
   { label: "Service Health", icon: <HubOutlinedIcon sx={{ fontSize: 16 }} />, href: "/platforms", color: "#6366F1" },
-  { label: "Open FT App", icon: <OpenInNewOutlinedIcon sx={{ fontSize: 16 }} />, href: "https://football-tracking-fe.vercel.app", external: true, color: "#F59E0B" },
-  { label: "Dashboard", icon: <DashboardOutlinedIcon sx={{ fontSize: 16 }} />, href: "/overview", color: "#3B82F6" },
 ];
 
 function getGreeting() {
@@ -23,27 +35,23 @@ function getGreeting() {
 }
 
 export default function QuickActions() {
+  const userName = useUserName();
   return (
     <GlassCard glowColor="rgba(99,102,241,0.12)" hover={false}>
       <Box sx={{ p: 3 }}>
         <Typography sx={{ fontSize: "0.65rem", fontWeight: 600, color: "#4B5563", textTransform: "uppercase", letterSpacing: "0.08em", mb: 0.5 }}>
-          {getGreeting()}, Florin
+          {getGreeting()}, {userName}
         </Typography>
         <Typography sx={{ fontSize: "1.1rem", fontWeight: 800, color: "#F9FAFB", letterSpacing: "-0.01em", lineHeight: 1.3 }}>
           What are you working on?
         </Typography>
 
         <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1, mt: 2.5 }}>
-          {ACTIONS.map((a) => {
-            const Wrapper = a.external ? "a" : Link;
-            const props = a.external
-              ? { href: a.href, target: "_blank", rel: "noopener noreferrer" }
-              : { href: a.href };
-            return (
+          {ACTIONS.map((a) => (
               <Box
                 key={a.label}
-                component={Wrapper as any}
-                {...props}
+                component={Link}
+                href={a.href}
                 sx={{
                   display: "flex",
                   alignItems: "center",
@@ -72,8 +80,7 @@ export default function QuickActions() {
                   {a.label}
                 </Typography>
               </Box>
-            );
-          })}
+          ))}
         </Box>
       </Box>
     </GlassCard>

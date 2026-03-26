@@ -1,12 +1,15 @@
 import { Box, Typography } from "@mui/material";
 import { apiFetch } from "@/lib/api";
+import { authFetch } from "@/lib/apiServer";
 import StatsOverview from "@/microfrontends/football/components/StatsOverview";
 import RecentMatches from "@/microfrontends/football/components/RecentMatches";
 import TopPlayers from "@/microfrontends/football/components/TopPlayers";
 import SystemPulse from "@/components/dashboard/SystemPulse";
 import EventStream from "@/components/dashboard/EventStream";
 import QuickActions from "@/components/dashboard/QuickActions";
+import DailyBrief from "@/components/dashboard/DailyBrief";
 import type { DashboardStats, Match, Player } from "@/types/football";
+import type { DailyBrief as DailyBriefType } from "@/types/brief";
 
 interface PlatformInfo {
   id: string;
@@ -24,11 +27,12 @@ async function fetchSafe<T>(path: string, params?: Record<string, string | numbe
 }
 
 export default async function OverviewPage() {
-  const [platforms, stats, matches, players] = await Promise.all([
+  const [platforms, stats, matches, players, brief] = await Promise.all([
     fetchSafe<PlatformInfo[]>("/platforms", undefined, []),
     fetchSafe<DashboardStats>("/services/football/stats"),
     fetchSafe<Match[]>("/services/football/matches", { limit: 8 }, []),
     fetchSafe<Player[]>("/services/football/players", { limit: 8 }, []),
+    authFetch<DailyBriefType>("/services/brief/today").catch(() => null),
   ]);
 
   const services = (platforms ?? []).map((p) => ({
@@ -74,6 +78,9 @@ export default async function OverviewPage() {
           {new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
         </Typography>
       </Box>
+
+      {/* Daily Brief */}
+      {brief && <DailyBrief brief={brief} />}
 
       {/* Bento Row 1: Quick Actions | System Pulse | Stats (compact) */}
       <Box
