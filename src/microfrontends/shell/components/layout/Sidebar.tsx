@@ -7,6 +7,8 @@ import { Box, Typography, Avatar, List, ListItemButton, ListItemText, IconButton
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import SportsSoccerOutlinedIcon from "@mui/icons-material/SportsSoccerOutlined";
 import HubOutlinedIcon from "@mui/icons-material/HubOutlined";
+import WorkOutlineOutlinedIcon from "@mui/icons-material/WorkOutlineOutlined";
+import ChecklistOutlinedIcon from "@mui/icons-material/ChecklistOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import OpenInNewOutlinedIcon from "@mui/icons-material/OpenInNewOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
@@ -48,6 +50,8 @@ function useUser() {
 
 const NAV = [
   { key: "Overview", href: "/overview", icon: <DashboardOutlinedIcon sx={{ fontSize: 17 }} /> },
+  { key: "Jobs", href: "/jobs", icon: <WorkOutlineOutlinedIcon sx={{ fontSize: 17 }} /> },
+  { key: "Tasks", href: "/tasks", icon: <ChecklistOutlinedIcon sx={{ fontSize: 17 }} /> },
   { key: "Football", href: "/football", icon: <SportsSoccerOutlinedIcon sx={{ fontSize: 17 }} /> },
   { key: "Platforms", href: "/platforms", icon: <HubOutlinedIcon sx={{ fontSize: 17 }} /> },
 ];
